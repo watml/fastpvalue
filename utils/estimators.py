@@ -10,23 +10,53 @@ class runEstimator:
     def __init__(self, *, estimator, n_process, semivalue, semivalue_param, game_func, game_args, num_player, nue_avg,
                  nue_per_proc, nue_track_avg, estimator_seed=2024, file_prog=None):
         self.estimator = estimator
+        """
+            Options are: "GELS", "GELS_paired", "GELS_shapley", "ARM", "sampling_lift", "kernelSHAP", "kernelSHAP_paired",
+            "unbiased_kernelSHAP", "GELS_shapley_paired", "permutation", "group_testing", "complement",
+            "sampling_lift_paired", "simSHAP" for the Shapley value
+            
+            For the Banzhaf values, choices are "ARM", "sampling_lift", "WSL", "AME", "MSR", "GELS", "GELS_ranking",
+            "sampling_lift_paired", "WSL_paired", "AME_paired", "MSR_paired", "GELS_paired", "GELS_ranking_paired"
+            
+            For the Beta(alpha, beta), generic options are "ARM", "sampling_lift", "WSL", "GELS", "GELS_ranking", 
+            "WSL_paired". 
+            If alpha = beta, there are more options: "sampling_lift_paired", "GELS_paired", "GELS_ranking_paired".
+            If alpha, beta > 1, an extra option is "AME".
+            if alpha, beta > 1 and alpha = beta, an extra option is "AME_paired". 
+        """
+
+
         self.n_process = n_process - 1 # one process is used for aggregating results
-        self.file_prog = file_prog
-        self.semivalue = semivalue
+
+        self.file_prog = file_prog # file to report the progress, similar to how tqdm does.
+
+        self.semivalue = semivalue # "shapley", "weighted_banzhaf", "beta_shapley"
+
         self.semivalue_param = semivalue_param
+        # anything for "shapley", 0 < semivalue_param < 1  for "weighted_banzhaf",
+        # (alpha, beta) = semivalue_param with alpha,beta > 0 for "beta_shapley"
+
         self.game_func = game_func
         self.game_args = game_args
+        # a game (equivalently, utility function) will be created using game = game_func(**game_args)
+        # suppose there are 4 players {0,1,2,3} (equivalently, the size of D_{tr}),
+        # game.evaluate([False, True, True, False]) returns U({1,2})
+        # so, the user can define their own utility functions
+
         self.estimator_seed = estimator_seed
+        # the random seed that controls the random sampling in the specified estimators
+
         self.num_player = num_player
+        # equivalently, the size of D_{tr}
 
-        # the number of utility evaluations used to do estimation on average (divided by the number of players)
         self.nue_avg = nue_avg
+        # the number of utility evaluations used to do estimation on average (divided by the number of players)
 
-        # the number of utility evaluations each process will run in one batch.
         self.nue_per_proc = nue_per_proc
+        # the number of utility evaluations each process will run in one batch.
 
-        # record the estimates of all players after using nue_track_avg, 2*nue_track_avg, ..., utility evaluations on average.
         self.nue_track_avg = nue_track_avg
+        # record the estimates of all players after using nue_track_avg, 2*nue_track_avg, ..., utility evaluations on average
 
     def run(self):
         estimator_args = dict(
@@ -61,12 +91,12 @@ class estimatorTemplate:
         self.semivalue_param = semivalue_param
         self.game_func = game_func
         self.game_args = game_args
+
         self.num_player = num_player
         self.nue_avg = nue_avg
         self.nue_per_proc = nue_per_proc
         self.nue_track_avg = nue_track_avg
         self.estimator_seed = estimator_seed
-
         num_traj = self.nue_avg // self.nue_track_avg
         self.values_traj = np.empty((num_traj, self.num_player), dtype=np.float64)
         self.pos_traj = 0
@@ -75,7 +105,7 @@ class estimatorTemplate:
         self.samples = None
 
         self.lock_switch = True
-        self.switch_state = False
+        self.switch_state = False # if it is set to be true, the paired sampling technique will be employed.
 
     @property
     def switch(self):

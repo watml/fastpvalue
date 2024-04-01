@@ -20,11 +20,15 @@ python compare_estimators.py -e
 
 For runing estimators, use `python compare_estimators.py` instead. There are 14 estimators implemented for the Shapley value, 13 for the Banzhaf value, 11 for Beta(2,2) and 6 for Beta(4,1).
 
-After all results are generated, `python plot_estimators.py` will be produced. 
+After all results are generated, `python plot_estimators.py` will produce all the figures. 
 
 ## Training Estimators
-All user-specified arguments are in utils/args_DV.py. The following commands will generate the training dataset used for training estimators,
+All user-specified arguments are in utils/args_DV.py. 
+The default dataset is set to be MNIST.
+The following commands will generate the training dataset used for training estimators,
 valiadation and test dataset for reporting the relative difference and Spearman correlation.
+Note that n_process=100 in utils/args_DV.py means there will be 100 processes for generating the datasets,
+and thus makes sure that there are at least 100 cpus.
 
 `
 python generate_training_dataset.py

@@ -3,7 +3,7 @@ import numpy as np
 from utils.funcs import vd_DotMap
 
 size_max = 1000
-dataset = "FMNIST"
+dataset = "MNIST"
 root = os.path.join("exp", "train_value_estimators")
 
 DV = vd_DotMap(dict(
