@@ -44,4 +44,4 @@ python generate_test_dataset.py
 
 After all the datasets are generated, run `python trainDVEstimator.py` to train estimators.
 
-Finially, run `python plot_training.py` and `python plot_appr.py` to plot the figures used in the paper.
+Finally, run `python plot_training.py` and `python plot_appr.py` to plot the figures used in the paper.
