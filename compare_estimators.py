@@ -14,22 +14,22 @@ import numpy as np
 import argparse
 
 ###############
-root = os.path.join("exp", "compare_estimators;nue_avg=20000")
+root = os.path.join("exp", "compare_estimators;nue_avg=20000") # path to store the results
 dir_format = "metric={};semivalue={}_{};estimator={}"
-n_process = 100
-nue_per_proc = 500
-nue_avg = 20000
-nue_track_avg = 200
+n_process = 100 # number of parallel processes used by runEstimator
+nue_per_proc = 500 # the number of utility evaluations per batch run by each process
+nue_avg = 20000 # the number of utility evaluations on average used to do estimation. The total number is nue_avg * n_valued
+nue_track_avg = 200 # the number of utility evaluations on average to record the estimates. The total number of estimates recorded will be nue_avg // nue_track_avg
 
 seeds = np.arange(30)
 datasets = ["iris", "wind", "MNIST", "FMNIST"]
 metrics = ["accuracy", "cross_entropy"]
-n_valued = 24
-n_perf = 24
+n_valued = 24 # the size of D_{tr}
+n_perf = 24 # the size of D_{perf}
 semivalues = {
     ("shapley", None) : ["GELS", "GELS_paired", "GELS_shapley", "ARM", "sampling_lift", "kernelSHAP", "kernelSHAP_paired",
                          "unbiased_kernelSHAP", "GELS_shapley_paired", "permutation", "group_testing", "complement",
-                         "sampling_lift_paired"],
+                         "sampling_lift_paired", "simSHAP"],
     ("beta_shapley", (2, 2)) : ["ARM", "sampling_lift", "WSL", "AME", "GELS", "GELS_ranking", "sampling_lift_paired",
                                 "WSL_paired", "AME_paired", "GELS_paired", "GELS_ranking_paired"],
     ("weighted_banzhaf", 0.5) : ["ARM", "sampling_lift", "WSL", "AME", "MSR", "GELS", "GELS_ranking",

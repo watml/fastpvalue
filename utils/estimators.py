@@ -90,6 +90,9 @@ class estimatorTemplate:
     def buffer_size(self):
         return self.interval_track + self.batch_size - 1
 
+    def run(self):
+        pass
+
     def _init_indiv(self):
         pass
 
@@ -229,6 +232,7 @@ class exact_value(estimatorTemplate):
         return self.values, self.values[None, :]
 
 
+# the implementation is only for semivalues
 class sampling_lift(estimatorTemplate):
     def __init__(self, **kwargs):
         super(sampling_lift, self).__init__(**kwargs)
@@ -586,6 +590,7 @@ class ARM(MSR):
         self.results_aggregate[3] += subsets.sum(axis=0)
 
 
+# the implementation follows Algorithm 2 in "Efficient Sampling Approaches to Shapley Value Approximation"
 class complement(estimatorTemplate):
     def __init__(self, **kwargs):
         super(complement, self).__init__(**kwargs)
@@ -645,6 +650,8 @@ class complement(estimatorTemplate):
         return np.mean(np.divide(self.results_aggregate[0], counts), axis=1)
 
 
+# the implementation follows Proposition 3.2 in "Measuring the Effect of Training Data on Deep Learning Predictions via
+# Randomized Experiments"
 class AME(estimatorTemplate):
     def __init__(self, **kwargs):
         super(AME, self).__init__(**kwargs)
@@ -716,6 +723,7 @@ class AME_paired(AME):
             assert self.semivalue_param[0] == self.semivalue_param[1]
 
 
+# the implementation follows Appendix C.3 in "Data Banzhaf: A Robust Data Valuation Framework for Machine Learning"
 class group_testing(sampling_lift):
     def __init__(self, **kwargs):
         super(sampling_lift, self).__init__(**kwargs)
@@ -871,3 +879,51 @@ class GELS_shapley_paired(GELS_shapley):
         super(GELS_shapley_paired, self).__init__(**kwargs)
         self.lock_switch = False
 
+
+class simSHAP(kernelSHAP):
+    def __init__(self, **kwargs):
+        super(MSR, self).__init__(**kwargs)
+        self.num_sample = self.nue_avg * self.num_player
+        self.interval_track = self.nue_track_avg * self.num_player
+        self.batch_size = self.nue_per_proc
+        self.nue_per_proc_run = self.batch_size
+
+        self.results_aggregate = dict(estimates=np.zeros(self.num_player, dtype=np.float64), count=0)
+        self.buffer = np.empty((self.buffer_size, self.num_player + 1), dtype=np.float64)
+        self.samples = np.empty((self.batch_size, self.num_player), dtype=bool)
+
+        with mp.Pool(1) as pool:
+            self.constants = pool.apply(self.calculate_constants, (self.game_func, self.game_args, self.num_player))
+
+    def _init_indiv(self):
+        assert self.semivalue == "shapley"
+
+        tmp = np.arange(1, self.num_player, dtype=np.float64)
+        weights = 1 / np.multiply(tmp, tmp[::-1])
+        self.gamma = weights.sum()
+        self.weights = weights / self.gamma
+        self.s_range = np.arange(1, self.num_player)
+        self.pos_range = np.arange(self.num_player)
+
+    def _process(self, inputs):
+        subsets = inputs[:, :self.num_player]
+        ues = inputs[:, [-1]]
+        sizes = subsets.sum(axis=1, keepdims=True)
+
+        tmp = ((self.num_player - sizes) * subsets - sizes * (1 - subsets)) * ues
+        num_pre = self.results_aggregate["count"]
+        num_cur = num_pre + ues.shape[0]
+        self.results_aggregate["estimates"] *= num_pre / num_cur
+        self.results_aggregate["estimates"] += tmp.sum(axis=0) / num_cur
+        self.results_aggregate["count"] = num_cur
+
+    def _estimate(self):
+        return self.results_aggregate["estimates"] * self.gamma \
+               + (self.constants[1] - self.constants[0]) / self.num_player
+
+
+class simSHAP_paired(simSHAP):
+    # it is equal to GELS_shapley_paired
+    def __init__(self, **kwargs):
+        super(simSHAP_paired, self).__init__(**kwargs)
+        self.lock_switch = False

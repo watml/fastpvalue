@@ -23,7 +23,8 @@ dict_color = dict(
     complement=10,
     permutation=9,
     MSR_paired=8,
-    AME_paired=16
+    AME_paired=16,
+    simSHAP=31,
 )
 dict_color_tmp = dict_color.copy()
 for key, value in dict_color_tmp.items():
