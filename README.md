@@ -10,7 +10,7 @@ This repository is to provide an implementation to replicate all the results rep
       url         = {https://openreview.net/forum?id=lvSMIsztka},
     }
 
-## Compare Estimators
+## Comparing Estimators
 The following command will calculate the exact estimates of the Shapley value, the Banzhaf value, Beta(2,2) and Beta(4,1) while the utility functions are set to report the accuracy and the cross-entropy loss on $D_{perf}$ for the datasets iris, wind, MNIST and FMNIST. Therefore, there are 32 combinations in total. Note that it takes a long time to complete.
 The user can check compare_estimators.py for all user-specified arguments.
 
