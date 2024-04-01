@@ -55,7 +55,6 @@ for estimator, label in dict_names.items():
     plt.plot([], [], label=label, color=clrs[dict_color[estimator]], linewidth=30)
 legend = plt.legend(ncol=5, fontsize=100)
 export_legend(legend, os.path.join(root, "fig", "legend.png"))
-breakpoint()
 # plot the figures
 for dataset in datasets:
     for metric in metrics:
