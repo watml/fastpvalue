@@ -24,7 +24,7 @@ After all results are generated, `python plot_estimators.py` will produce all th
 All user-specified arguments are in utils/args_DV.py. 
 The default dataset is set to be MNIST.
 The following commands will generate the training dataset used for training estimators,
-valiadation and test dataset for reporting the relative difference and Spearman correlation.
+valiadation and test datasets for reporting the relative difference and Spearman correlation.
 Note that n_process=100 in utils/args_DV.py means there will be 100 processes (each process is restricted to have only one thread) forked for generating the datasets,
 and thus make sure that there are at least 100 cpus.
 
