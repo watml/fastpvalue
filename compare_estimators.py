@@ -14,7 +14,7 @@ import numpy as np
 import argparse
 
 ###############
-root = os.path.join("exp", "compare_estimators;nue_avg=20000") # path to store the results
+root = os.path.join("exp", "compare_estimators") # path to store the results
 dir_format = "metric={};semivalue={}_{};estimator={}"
 n_process = 100 # number of parallel processes used by runEstimator
 nue_per_proc = 500 # the number of utility evaluations per batch run by each process

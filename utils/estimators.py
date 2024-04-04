@@ -104,8 +104,8 @@ class estimatorTemplate:
         self.pos_buffer = 0
         self.samples = None
 
-        self.lock_switch = True
-        self.switch_state = False # if it is set to be true, the paired sampling technique will be employed.
+        self.lock_switch = True # if it is set to be False, the paired sampling technique will be employed.
+        self.switch_state = False
 
     @property
     def switch(self):
